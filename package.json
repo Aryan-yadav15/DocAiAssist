@@ -1,0 +1,121 @@
+{
+  "name": "docrag",
+  "displayName": "DocRAG - Documentation Context for Copilot",
+  "description": "Vectorize library documentation and provide up-to-date context to GitHub Copilot",
+  "version": "0.1.0",
+  "publisher": "docrag",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Machine Learning",
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "docrag.indexDocumentation",
+        "title": "DocRAG: Index Documentation"
+      },
+      {
+        "command": "docrag.searchDocumentation",
+        "title": "DocRAG: Search Documentation"
+      },
+      {
+        "command": "docrag.openSettings",
+        "title": "DocRAG: Open Settings"
+      },
+      {
+        "command": "docrag.clearCache",
+        "title": "DocRAG: Clear Cache"
+      }
+    ],
+    "configuration": {
+      "title": "DocRAG",
+      "properties": {
+        "docrag.libraries": {
+          "type": "array",
+          "default": [],
+          "description": "List of libraries to index with their documentation URLs",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "docrag.chunkSize": {
+          "type": "number",
+          "default": 512,
+          "description": "Size of text chunks in tokens"
+        },
+        "docrag.chunkOverlap": {
+          "type": "number",
+          "default": 50,
+          "description": "Overlap between chunks in tokens"
+        },
+        "docrag.maxSearchResults": {
+          "type": "number",
+          "default": 5,
+          "description": "Maximum number of search results to return"
+        },
+        "docrag.embeddingModel": {
+          "type": "string",
+          "default": "Xenova/all-MiniLM-L6-v2",
+          "description": "Hugging Face model ID for embeddings"
+        },
+        "docrag.enableCopilotIntegration": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automatic context injection for GitHub Copilot"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack && npm run copy-wasm",
+    "copy-wasm": "node -e \"require('fs').copyFileSync('node_modules/sql.js/dist/sql-wasm.wasm', 'dist/sql-wasm.wasm')\"",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map && npm run copy-wasm",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@types/sql.js": "^1.4.9",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.56.0",
+    "glob": "^10.3.10",
+    "mocha": "^10.2.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@xenova/transformers": "^2.9.0",
+    "cheerio": "^1.0.0-rc.12",
+    "natural": "^6.10.3",
+    "node-fetch": "^3.3.2",
+    "sql.js": "^1.13.0"
+  }
+}
