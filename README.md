@@ -44,6 +44,3 @@ This extension is built with:
 - Cheerio for web scraping
 - Natural (BM25 search)
 
-## License
-
-MIT
