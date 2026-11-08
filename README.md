@@ -18,7 +18,7 @@ library's docs URL. It finds the pages, splits them into chunks, embeds them loc
 everything in a SQLite file in VS Code's storage. You can then search from the command palette, and Copilot chat can
 call it as the `#docrag` tool.
 
-<!-- TODO(owner): one line of context — where/why this was built -->
+**Why it exists:** AI coding assistants keep suggesting deprecated APIs for fast-moving libraries because their training data is months or years old. DocRAG was built to feed them the current docs instead ([original MVP plan](docs/planning/mvp-product-roadmap.md)).
 
 ## ▸ See it work
 
