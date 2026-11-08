@@ -159,6 +159,28 @@ export class StorageEngine {
     }
   }
 
+  getChunkById(id: number): TextChunk | null {
+    if (!this.db) return null;
+
+    try {
+      const result = this.db.exec(
+        `SELECT id, text, page_url, library, title, section, chunk_index FROM chunks WHERE id = ?`,
+        [id]
+      );
+
+      if (!result || result.length === 0) return null;
+
+      const chunk: any = {};
+      result[0].columns.forEach((col, idx) => {
+        chunk[col] = result[0].values[0][idx];
+      });
+      return this.rowToChunk(chunk);
+    } catch (error) {
+      console.error('Error getting chunk:', error);
+      return null;
+    }
+  }
+
   searchByKeyword(query: string, library?: string, limit: number = 10): TextChunk[] {
     if (!this.db) return [];
 
@@ -241,6 +263,8 @@ export class StorageEngine {
     if (!this.db) return;
 
     try {
+      // sql.js has foreign keys off, so ON DELETE CASCADE never fires; delete embeddings explicitly
+      this.db.run('DELETE FROM embeddings WHERE chunk_id IN (SELECT id FROM chunks WHERE library = ?)', [library]);
       this.db.run('DELETE FROM chunks WHERE library = ?', [library]);
       this.save();
       console.log(`Cleared library: ${library}`);
