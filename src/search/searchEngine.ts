@@ -93,13 +93,8 @@ export class SearchEngine {
       // Get chunks for top results
       const results: SearchResult[] = [];
       for (const { chunkId, similarity } of topResults) {
-        // Need to get chunk by ID - add this method to storage
-        const chunks = library 
-          ? this.storage.getChunksByLibrary(library)
-          : [];
-        
-        const chunk = chunks.find(c => c.id === chunkId);
-        if (chunk) {
+        const chunk = this.storage.getChunkById(chunkId);
+        if (chunk && (!library || chunk.library === library)) {
           results.push({
             chunk,
             score: similarity,

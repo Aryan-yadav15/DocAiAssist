@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Indexing one library",
+    "output": "docs/diagrams/indexing-flow.html",
+    "viewBox": [
+      1080,
+      694
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Aryan-yadav15/DocAiAssist.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "4fe7c492766d3bd4e02df5aa1b0aa5071a5a83d5"
+    }
+  },
+  "participants": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "Developer",
+      "sublabel": "palette",
+      "sources": [
+        {
+          "path": "src/extension.ts",
+          "line": 85,
+          "end_line": 112,
+          "label": "indexDocumentation"
+        }
+      ]
+    },
+    {
+      "id": "ext",
+      "type": "backend",
+      "label": "extension.ts",
+      "sublabel": "indexLibrary()",
+      "sources": [
+        {
+          "path": "src/extension.ts",
+          "line": 125,
+          "end_line": 250,
+          "label": "indexLibrary"
+        }
+      ]
+    },
+    {
+      "id": "disc",
+      "type": "backend",
+      "label": "Discovery",
+      "sublabel": "sitemap/crawl",
+      "sources": [
+        {
+          "path": "src/discovery/discoveryEngine.ts",
+          "line": 15,
+          "end_line": 28
+        }
+      ]
+    },
+    {
+      "id": "site",
+      "type": "external",
+      "label": "Docs website",
+      "sublabel": "node-fetch",
+      "sources": [
+        {
+          "path": "src/discovery/discoveryEngine.ts",
+          "line": 41
+        },
+        {
+          "path": "src/scraper/scraperEngine.ts",
+          "line": 15
+        }
+      ]
+    },
+    {
+      "id": "scr",
+      "type": "backend",
+      "label": "Scraper",
+      "sublabel": "cheerio",
+      "sources": [
+        {
+          "path": "src/scraper/scraperEngine.ts",
+          "line": 13,
+          "end_line": 52
+        }
+      ]
+    },
+    {
+      "id": "chk",
+      "type": "backend",
+      "label": "Chunker",
+      "sublabel": "~512 tokens",
+      "sources": [
+        {
+          "path": "src/chunking/chunkingEngine.ts",
+          "line": 19,
+          "end_line": 50
+        }
+      ]
+    },
+    {
+      "id": "emb",
+      "type": "cloud",
+      "label": "Embeddings",
+      "sublabel": "MiniLM, local",
+      "sources": [
+        {
+          "path": "src/embeddings/embeddingsEngine.ts",
+          "line": 19,
+          "end_line": 33
+        },
+        {
+          "path": "src/embeddings/embeddingsEngine.ts",
+          "line": 60,
+          "end_line": 98
+        }
+      ]
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "Storage",
+      "sublabel": "sql.js",
+      "sources": [
+        {
+          "path": "src/storage/storageEngine.ts",
+          "line": 98,
+          "end_line": 124,
+          "label": "storeChunk"
+        },
+        {
+          "path": "src/storage/storageEngine.ts",
+          "line": 262,
+          "end_line": 274,
+          "label": "clearLibrary"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 199,
+      "to": 281,
+      "label": "Discover"
+    },
+    {
+      "from": 295,
+      "to": 489,
+      "label": "Scrape, chunk, embed"
+    },
+    {
+      "from": 503,
+      "to": 529,
+      "label": "Store"
+    }
+  ],
+  "messages": [
+    {
+      "id": "pick",
+      "from": "user",
+      "to": "ext",
+      "y": 172,
+      "label": "Index Documentation · pick library",
+      "variant": "emphasis"
+    },
+    {
+      "id": "disc",
+      "from": "ext",
+      "to": "disc",
+      "y": 212,
+      "label": "discover(url)"
+    },
+    {
+      "id": "smap",
+      "from": "disc",
+      "to": "site",
+      "y": 240,
+      "label": "GET sitemap.xml (else crawl links)"
+    },
+    {
+      "id": "urls",
+      "from": "disc",
+      "to": "ext",
+      "y": 268,
+      "label": "page URLs",
+      "variant": "return"
+    },
+    {
+      "id": "scrape",
+      "from": "ext",
+      "to": "scr",
+      "y": 308,
+      "label": "scrape(url), one page at a time"
+    },
+    {
+      "id": "get",
+      "from": "scr",
+      "to": "site",
+      "y": 336,
+      "label": "GET page HTML"
+    },
+    {
+      "id": "text",
+      "from": "scr",
+      "to": "ext",
+      "y": 364,
+      "label": "title + main text",
+      "variant": "return"
+    },
+    {
+      "id": "chunk",
+      "from": "ext",
+      "to": "chk",
+      "y": 392,
+      "label": "chunk(page)"
+    },
+    {
+      "id": "chunks",
+      "from": "chk",
+      "to": "ext",
+      "y": 420,
+      "label": "chunks, 50-token overlap",
+      "variant": "return"
+    },
+    {
+      "id": "embed",
+      "from": "ext",
+      "to": "emb",
+      "y": 448,
+      "label": "embedBatch(texts)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "vecs",
+      "from": "emb",
+      "to": "ext",
+      "y": 476,
+      "label": "384-d vectors",
+      "variant": "return"
+    },
+    {
+      "id": "clear",
+      "from": "ext",
+      "to": "db",
+      "y": 516,
+      "label": "clearLibrary, storeChunk × N, status = completed"
+    },
+    {
+      "id": "toast",
+      "from": "ext",
+      "to": "user",
+      "y": 556,
+      "label": "“Indexing completed!” · N chunks",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "ext",
+      "from": 168,
+      "to": 562,
+      "type": "backend"
+    },
+    {
+      "participant": "disc",
+      "from": 208,
+      "to": 274,
+      "type": "backend"
+    },
+    {
+      "participant": "scr",
+      "from": 304,
+      "to": 370,
+      "type": "backend"
+    },
+    {
+      "participant": "chk",
+      "from": 388,
+      "to": 426,
+      "type": "backend"
+    },
+    {
+      "participant": "emb",
+      "from": 444,
+      "to": 482,
+      "type": "cloud"
+    },
+    {
+      "participant": "db",
+      "from": 512,
+      "to": 522,
+      "type": "database"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Happy path",
+      "items": [
+        "Pages are fetched and embedded sequentially, one at a time (extension.ts:149-167, embeddingsEngine.ts:72-88)",
+        "Sitemap URLs are kept only if they start with the configured URL (discoveryEngine.ts:49)",
+        "The first embedBatch downloads the MiniLM model from Hugging Face (embeddingsEngine.ts:26)"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Failure handling",
+      "items": [
+        "A page that fails or has under 50 chars of text is skipped (scraperEngine.ts:36-39)",
+        "Zero scraped pages throws; status becomes 'error' and an error toast is shown (extension.ts:172-175, 242-246)",
+        "Chunks whose embedding failed are dropped before storage (extension.ts:210-221)"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Persistence",
+      "items": [
+        "sql.js keeps the DB in memory; save() writes the whole file every 100 chunks and on status updates (storageEngine.ts:115-117, 321)",
+        "Re-indexing deletes the library's chunks and embeddings first (storageEngine.ts:262-274)"
+      ]
+    }
+  ]
+}

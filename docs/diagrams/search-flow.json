@@ -1,0 +1,275 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "One search request",
+    "output": "docs/diagrams/search-flow.html",
+    "viewBox": [
+      1080,
+      694
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Aryan-yadav15/DocAiAssist.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "4fe7c492766d3bd4e02df5aa1b0aa5071a5a83d5"
+    }
+  },
+  "participants": [
+    {
+      "id": "caller",
+      "type": "external",
+      "label": "Developer or Copilot",
+      "sublabel": "command or #docrag tool",
+      "sources": [
+        {
+          "path": "src/extension.ts",
+          "line": 255,
+          "end_line": 264,
+          "label": "searchDocumentation"
+        },
+        {
+          "path": "src/integration/copilotIntegration.ts",
+          "line": 24,
+          "end_line": 32,
+          "label": "tool invoke"
+        }
+      ]
+    },
+    {
+      "id": "ext",
+      "type": "backend",
+      "label": "Entry point",
+      "sublabel": "extension.ts / copilotIntegration.ts",
+      "sources": [
+        {
+          "path": "src/extension.ts",
+          "line": 264,
+          "label": "search(query, undefined, 10)"
+        },
+        {
+          "path": "src/integration/copilotIntegration.ts",
+          "line": 32,
+          "label": "search(query, undefined, 3)"
+        }
+      ]
+    },
+    {
+      "id": "se",
+      "type": "backend",
+      "label": "SearchEngine",
+      "sublabel": "hybrid + RRF",
+      "sources": [
+        {
+          "path": "src/search/searchEngine.ts",
+          "line": 43,
+          "end_line": 54,
+          "label": "search"
+        },
+        {
+          "path": "src/search/searchEngine.ts",
+          "line": 116,
+          "end_line": 160,
+          "label": "fuseResults"
+        }
+      ]
+    },
+    {
+      "id": "emb",
+      "type": "cloud",
+      "label": "EmbeddingsEngine",
+      "sublabel": "MiniLM-L6-v2",
+      "sources": [
+        {
+          "path": "src/embeddings/embeddingsEngine.ts",
+          "line": 38,
+          "end_line": 55,
+          "label": "embed"
+        }
+      ]
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "StorageEngine",
+      "sublabel": "sql.js docrag.db",
+      "sources": [
+        {
+          "path": "src/storage/storageEngine.ts",
+          "line": 184,
+          "end_line": 220,
+          "label": "searchByKeyword"
+        },
+        {
+          "path": "src/storage/storageEngine.ts",
+          "line": 238,
+          "end_line": 260,
+          "label": "getAllEmbeddings"
+        },
+        {
+          "path": "src/storage/storageEngine.ts",
+          "line": 162,
+          "end_line": 182,
+          "label": "getChunkById"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 232,
+      "to": 290,
+      "label": "Keyword"
+    },
+    {
+      "from": 306,
+      "to": 484,
+      "label": "Vector"
+    },
+    {
+      "from": 500,
+      "to": 558,
+      "label": "Fuse + respond"
+    }
+  ],
+  "messages": [
+    {
+      "id": "q",
+      "from": "caller",
+      "to": "ext",
+      "y": 172,
+      "label": "query",
+      "variant": "emphasis"
+    },
+    {
+      "id": "s",
+      "from": "ext",
+      "to": "se",
+      "y": 202,
+      "label": "search(query, no library, N)"
+    },
+    {
+      "id": "kw",
+      "from": "se",
+      "to": "db",
+      "y": 246,
+      "label": "text LIKE '%query%' (limit 2N)"
+    },
+    {
+      "id": "kwr",
+      "from": "db",
+      "to": "se",
+      "y": 276,
+      "label": "exact-substring hits",
+      "variant": "return"
+    },
+    {
+      "id": "e",
+      "from": "se",
+      "to": "emb",
+      "y": 320,
+      "label": "embed(query)"
+    },
+    {
+      "id": "er",
+      "from": "emb",
+      "to": "se",
+      "y": 350,
+      "label": "384-d vector",
+      "variant": "return"
+    },
+    {
+      "id": "all",
+      "from": "se",
+      "to": "db",
+      "y": 380,
+      "label": "getAllEmbeddings()"
+    },
+    {
+      "id": "allr",
+      "from": "db",
+      "to": "se",
+      "y": 410,
+      "label": "every stored vector → cosine, top 2N",
+      "variant": "return"
+    },
+    {
+      "id": "byid",
+      "from": "se",
+      "to": "db",
+      "y": 440,
+      "label": "getChunkById × top 2N"
+    },
+    {
+      "id": "byidr",
+      "from": "db",
+      "to": "se",
+      "y": 470,
+      "label": "chunks",
+      "variant": "return"
+    },
+    {
+      "id": "fused",
+      "from": "se",
+      "to": "ext",
+      "y": 514,
+      "label": "top N by RRF: Σ 1/(60 + rank)",
+      "variant": "return"
+    },
+    {
+      "id": "out",
+      "from": "ext",
+      "to": "caller",
+      "y": 544,
+      "label": "QuickPick, or Markdown text parts",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "ext",
+      "from": 168,
+      "to": 550,
+      "type": "backend"
+    },
+    {
+      "participant": "se",
+      "from": 198,
+      "to": 520,
+      "type": "backend"
+    },
+    {
+      "participant": "emb",
+      "from": 316,
+      "to": 356,
+      "type": "cloud"
+    },
+    {
+      "participant": "db",
+      "from": 242,
+      "to": 476,
+      "type": "database"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Two callers",
+      "items": [
+        "Search Documentation asks for 10 results and opens the chosen page URL in the browser (extension.ts:264-286)",
+        "The #docrag Copilot tool asks for 3 and returns title, source URL and chunk text (copilotIntegration.ts:32-61)"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Ranking",
+      "items": [
+        "The keyword half is an exact substring match, so natural-language queries usually rely on the vector half (storageEngine.ts:188)",
+        "Vector search is brute-force cosine over every stored vector, all parsed from JSON on each query (searchEngine.ts:79-91)",
+        "Only ranks are fused, never raw scores (searchEngine.ts:121-147)"
+      ]
+    }
+  ]
+}

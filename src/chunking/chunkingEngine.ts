@@ -56,7 +56,45 @@ export class ChunkingEngine {
     return text
       .split(/\n\n+/)
       .map(p => p.trim())
-      .filter(p => p.length > 0);
+      .filter(p => p.length > 0)
+      .flatMap(p => this.splitOversized(p));
+  }
+
+  /**
+   * Split a paragraph larger than chunkSize at sentence boundaries.
+   * The scraper collapses whitespace, so a whole page usually arrives as one paragraph.
+   */
+  private splitOversized(paragraph: string): string[] {
+    if (this.estimateTokens(paragraph) <= this.chunkSize) {
+      return [paragraph];
+    }
+
+    const maxChars = this.chunkSize * 4;
+    const sentences = paragraph.split(/(?<=[.!?])\s+/).map(s => s + ' ');
+    const pieces: string[] = [];
+    let current = '';
+
+    for (const sentence of sentences) {
+      if (current.length + sentence.length > maxChars && current.length > 0) {
+        pieces.push(current.trim());
+        current = '';
+      }
+      // Hard-split a single sentence that is still too long
+      for (let i = 0; i < sentence.length; i += maxChars) {
+        const part = sentence.slice(i, i + maxChars);
+        if (current.length + part.length > maxChars && current.length > 0) {
+          pieces.push(current.trim());
+          current = '';
+        }
+        current += part;
+      }
+    }
+
+    if (current.trim().length > 0) {
+      pieces.push(current.trim());
+    }
+
+    return pieces;
   }
 
   /**
