@@ -28,7 +28,7 @@ Declared in `package.json` → `contributes.languageModelTools` and implemented 
 ```
 
 **Output** — one `LanguageModelTextPart` header plus one part per result, top 3 by reciprocal rank fusion. The example below
-was produced by running the extension's own `SearchEngine` against the Vite index from the [demo](../README.md#see-it-work)
+was produced by running the extension's own `SearchEngine` against the Vite index from the [demo](../README.md#-see-it-work)
 and applying the tool's formatting (`copilotIntegration.ts:45-58`); chunk text is truncated here with `…`:
 
 ```markdown

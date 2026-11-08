@@ -2,7 +2,7 @@
 
 There is no automated test suite yet. `package.json` defines `npm test` (→ `out/test/runTest.js`) and `npm run lint`,
 but there is no `src/test/` folder and no ESLint config, so both fail. Until tests exist, check changes by hand in the
-Extension Development Host as below. [What's next](../README.md#whats-next) lists adding tests.
+Extension Development Host as below. [What's next](../README.md#-whats-next) lists adding tests.
 
 ## Manual check
 
