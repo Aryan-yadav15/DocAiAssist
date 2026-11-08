@@ -1,0 +1,351 @@
+{
+  "title": "DocRAG",
+  "accent": {
+    "light": "#0e7a5f",
+    "dark": "#34d399"
+  },
+  "hero": {
+    "masthead": [
+      "VS CODE EXTENSION",
+      "BY @ARYAN-YADAV15",
+      "LOCAL RAG · 2025"
+    ],
+    "tagline": [
+      "Index the docs.",
+      "Search them from VS Code."
+    ],
+    "blurb": "Crawls a library's docs, embeds them on your machine, and serves hybrid search to you and to Copilot.",
+    "demo": {
+      "labels": [
+        "YOU ASK",
+        "IT DOES",
+        "TOP HITS (COSINE ×1000)"
+      ],
+      "question": "how do I proxy API requests to my backend",
+      "code": [
+        "embed(query)  // MiniLM, 384-d",
+        "cosine vs 41 Vite chunks",
+        "RRF fuse with keyword hits"
+      ],
+      "keywords": [
+        "embed",
+        "cosine",
+        "RRF"
+      ],
+      "rows": [
+        [
+          "Server Options",
+          476
+        ],
+        [
+          "Preview Options",
+          399
+        ],
+        [
+          "Server Options",
+          316
+        ]
+      ]
+    },
+    "facts": [
+      "4 commands",
+      "Local MiniLM embeddings",
+      "SQLite in WASM",
+      "Copilot tool: #docrag"
+    ]
+  },
+  "arch": {
+    "alt": "Architecture: VS Code commands and the Copilot language-model tool call into extension.ts, which runs a discovery, scrape, chunk, embed pipeline and a hybrid search engine; data lives in the docs site, a local MiniLM model and a sql.js SQLite file in VS Code global storage.",
+    "kicker": "ARCHITECTURE",
+    "title": "How the pieces fit.",
+    "cols": [
+      "VS CODE",
+      "EXTENSION HOST · NODE",
+      "DATA & MODELS"
+    ],
+    "client": [
+      [
+        "Command palette",
+        "Index · Search · Clear"
+      ],
+      [
+        "Copilot chat",
+        "calls #docrag tool"
+      ]
+    ],
+    "server": [
+      "extension.ts",
+      "activates on startup"
+    ],
+    "agent": [
+      "Indexing + search",
+      "src/*/…Engine.ts"
+    ],
+    "tools": [
+      [
+        "DiscoveryEngine",
+        "sitemap or crawl"
+      ],
+      [
+        "ScraperEngine",
+        "cheerio → text"
+      ],
+      [
+        "EmbeddingsEngine",
+        "MiniLM-L6-v2"
+      ],
+      [
+        "SearchEngine",
+        "LIKE + cosine, RRF"
+      ]
+    ],
+    "data": [
+      [
+        "Docs website",
+        "HTTP fetch"
+      ],
+      [
+        "Hugging Face model",
+        "downloaded once"
+      ],
+      [
+        "docrag.db (sql.js)",
+        "chunks + vectors"
+      ]
+    ],
+    "links": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        2
+      ]
+    ],
+    "footnote": "Nothing leaves the machine except page fetches and the one-time model download.",
+    "link": "API"
+  },
+  "flow": {
+    "alt": "Indexing flow: discover pages from sitemap.xml or by crawling, scrape main content, split into ~512-token chunks, embed each with MiniLM, store in SQLite, then search with keyword and vector ranking fused by RRF.",
+    "kicker": "INDEX ONE LIBRARY, END TO END",
+    "title": "From a URL to answers.",
+    "steps": [
+      [
+        "Discover",
+        "sitemap.xml first, else crawl 3 levels deep"
+      ],
+      [
+        "Scrape",
+        "main/article text, nav and footer removed"
+      ],
+      [
+        "Chunk",
+        "~512 tokens with 50-token overlap"
+      ],
+      [
+        "Embed",
+        "MiniLM-L6-v2 locally, 384-d vectors"
+      ],
+      [
+        "Store",
+        "sql.js SQLite in global storage"
+      ],
+      [
+        "Search",
+        "keyword + cosine, fused with RRF"
+      ]
+    ]
+  },
+  "decisions": {
+    "alt": "Design decisions: sql.js instead of native SQLite, local Transformers.js embeddings, reciprocal rank fusion, sitemap-first discovery.",
+    "kicker": "DECISIONS WORTH TALKING ABOUT",
+    "title": "Why it's built this way.",
+    "items": [
+      [
+        "sql.js, not native SQLite",
+        "SQLite compiled to WASM (storageEngine.ts:28) needs no native rebuild per Electron version. The whole DB is in memory and written to disk with db.export()."
+      ],
+      [
+        "Embeddings run locally",
+        "Transformers.js runs all-MiniLM-L6-v2 in the extension host (embeddingsEngine.ts:26): no API key, no doc text sent to a provider."
+      ],
+      [
+        "Reciprocal rank fusion",
+        "Keyword and vector scores aren't comparable, so ranks are fused instead: 1/(60+rank) summed per chunk (searchEngine.ts:121)."
+      ],
+      [
+        "Sitemap before crawling",
+        "One sitemap.xml fetch beats a 3-level crawl; URLs are kept only if they start with the configured URL (discoveryEngine.ts:49)."
+      ]
+    ]
+  },
+  "stack": {
+    "alt": "Stack: TypeScript, VS Code Extension API, webpack; Transformers.js with all-MiniLM-L6-v2; cheerio and node-fetch; sql.js SQLite.",
+    "kicker": "BUILT WITH",
+    "title": "The stack.",
+    "cols": [
+      [
+        "EXTENSION",
+        [
+          [
+            "TypeScript",
+            "typescript"
+          ],
+          [
+            "VS Code API",
+            null
+          ],
+          [
+            "webpack",
+            "webpack"
+          ]
+        ]
+      ],
+      [
+        "RETRIEVAL",
+        [
+          [
+            "Transformers.js",
+            "huggingface"
+          ],
+          [
+            "all-MiniLM-L6-v2",
+            null
+          ],
+          [
+            "ONNX Runtime",
+            "onnx"
+          ]
+        ]
+      ],
+      [
+        "DATA",
+        [
+          [
+            "sql.js (SQLite)",
+            "sqlite"
+          ],
+          [
+            "cheerio",
+            null
+          ],
+          [
+            "node-fetch",
+            null
+          ]
+        ]
+      ]
+    ]
+  },
+  "terminal": {
+    "alt": "Terminal: npm ci, then npm run compile builds dist/extension.js with webpack and copies sql-wasm.wasm; then press F5 in VS Code to launch the Extension Development Host.",
+    "kicker": "RUN IT",
+    "title": "Up and running.",
+    "window": "zsh — DocAiAssist",
+    "prompt": "❯",
+    "lines": [
+      [
+        "com",
+        "# install and build"
+      ],
+      [
+        "cmd",
+        "npm ci"
+      ],
+      [
+        "out",
+        "  added 496 packages in 42s"
+      ],
+      [
+        "cmd",
+        "npm run compile"
+      ],
+      [
+        "out",
+        "  webpack 5.102.1 compiled with 1 warning"
+      ],
+      [
+        "out",
+        "  > docrag@0.1.0 copy-wasm"
+      ],
+      [
+        "gap",
+        ""
+      ],
+      [
+        "com",
+        "# then press F5 in VS Code → Run Extension"
+      ]
+    ]
+  },
+  "editor": {
+    "alt": "Code from src/search/searchEngine.ts lines 121 to 147: reciprocal rank fusion. Each keyword and vector result adds 1/(60+rank+1) to its chunk's score, so chunks found by both rise to the top.",
+    "kicker": "IN THE CODE",
+    "title": "Hybrid search in a few lines.",
+    "window": "src/search",
+    "file": "searchEngine.ts",
+    "notes": {
+      "127": "← rank, not raw score",
+      "140": "← found by both: scores add"
+    },
+    "lines": [
+      [
+        121,
+        "    const k = 60; // RRF constant"
+      ],
+      [
+        "fold",
+        "    ⋯"
+      ],
+      [
+        125,
+        "    keywordResults.forEach((result, index) => {"
+      ],
+      [
+        126,
+        "      const chunkId = result.chunk.id!;"
+      ],
+      [
+        127,
+        "      const rrfScore = 1 / (k + index + 1);"
+      ],
+      [
+        "fold",
+        "    ⋯"
+      ],
+      [
+        135,
+        "    vectorResults.forEach((result, index) => {"
+      ],
+      [
+        136,
+        "      const chunkId = result.chunk.id!;"
+      ],
+      [
+        137,
+        "      const rrfScore = 1 / (k + index + 1);"
+      ],
+      [
+        138,
+        "      "
+      ],
+      [
+        139,
+        "      if (scores.has(chunkId)) {"
+      ],
+      [
+        140,
+        "        scores.get(chunkId)!.score += rrfScore;"
+      ]
+    ]
+  }
+}
