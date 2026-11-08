@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "publisher": "docrag",
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.95.0"
   },
   "categories": [
     "AI",
@@ -17,6 +17,26 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "languageModelTools": [
+      {
+        "name": "docrag-search",
+        "displayName": "DocRAG: Search Documentation",
+        "toolReferenceName": "docrag",
+        "canBeReferencedInPrompt": true,
+        "userDescription": "Search locally indexed library documentation",
+        "modelDescription": "Searches library documentation that the user has indexed locally with DocRAG (hybrid keyword + vector search) and returns the most relevant passages with their source URLs. Use it when answering questions about a library's API, configuration or usage so the answer reflects the current docs.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "What to look up in the documentation, e.g. 'configure a dev server proxy'"
+            }
+          },
+          "required": ["query"]
+        }
+      }
+    ],
     "commands": [
       {
         "command": "docrag.indexDocumentation",
@@ -99,7 +119,7 @@
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
     "@types/sql.js": "^1.4.9",
-    "@types/vscode": "^1.85.0",
+    "@types/vscode": "^1.95.0",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "@vscode/test-electron": "^2.3.8",
